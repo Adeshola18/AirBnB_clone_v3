@@ -13,7 +13,7 @@ from models.state import State
 from models.user import User
 from os import getenv
 import sqlalchemy
-ifrom sqlalchemy import create_engine
+from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 classes = {"Amenity": Amenity, "City": City,
@@ -51,6 +51,17 @@ class DBStorage:
                     new_dict[key] = obj
         return (new_dict)
 
+    def get(self, cls, id):
+        """retrieves an object of a class with id"""
+        obj = None
+        if cls is not None and issubclass(cls, BaseModel):
+            obj = self.__session.query(cls).filter(cls.id == id).first()
+        return obj
+
+    def count(self, cls=None):
+        """retrieves the number of objects of a class or all (if cls==None)"""
+        return len(self.all(cls))
+
     def new(self, obj):
         """add the object to the current database session"""
         self.__session.add(obj)
@@ -74,21 +85,3 @@ class DBStorage:
     def close(self):
         """call remove() method on the private session attribute"""
         self.__session.remove()
-
-    def get(self, cls, id):
-        """retrieve an obj of class cls with id"""
-        if cls is not None:
-            objs = self.__session.query(cls).filter(cls.id == id).first()
-            if objs:
-                return (objs)
-            return None
-        return None
-
-    def count(self, cls=None):
-        """return a count of an object type or all objects"""
-        if cls is not None:
-            objs = self.__session.query(cls).all()
-            count = len(objs)
-        else:
-            count = len(self.all(None))
-        return count

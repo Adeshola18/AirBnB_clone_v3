@@ -1,37 +1,24 @@
 #!/usr/bin/python3
-"""Routing for views"""
-from models import storage
-from api.v1.views import app_views
+'''Contains the index view for the API.'''
 from flask import jsonify
-from models.amenity import Amenity
-from models.city import City
-from models.place import Place
-from models.review import Review
-from models.state import State
-from models.user import User
-
-all_obj = {
-        "amenities": Amenity,
-        "cities": City,
-        "places": Place,
-        "reviews": Review,
-        "states": State,
-        "users": User
-        }
+from api.v1.views import app_views
+from models import storage
 
 
 @app_views.route('/status', methods=['GET'], strict_slashes=False)
-def show_status():
-    """Shows the status of the API
-    Returns:
-    A JSON string of the status
-    """
-    return jsonify({'status': 'OK'})
+def status():
+    """ Returns JSON """
+    return jsonify(status="OK")
 
 
 @app_views.route('/stats', methods=['GET'], strict_slashes=False)
-def show_stats():
-    """returns the count of all objects"""
-    for key, value in all_obj.items():
-        all_obj[key] = storage.count(value)
-    return jsonify(all_obj)
+def stat():
+    """returns the number of each objects by type"""
+    return jsonify(
+        amenities=storage.count('Amenity'),
+        cities=storage.count('City'),
+        places=storage.count('Place'),
+        reviews=storage.count('Review'),
+        states=storage.count('State'),
+        users=storage.count('User')
+    )
